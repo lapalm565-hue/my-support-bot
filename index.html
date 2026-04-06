@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Support Bot</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .chat-container {
+      width: 400px;
+      height: 600px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: #4f46e5;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .header-text h3 { color: white; font-size: 16px; }
+    .header-text p { color: #c7d2fe; font-size: 12px; }
+    .online-dot {
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .bot-message {
+      background: white;
+      color: #1e293b;
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .user-message {
+      background: #4f46e5;
+      color: white;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 12px 16px;
+      background: white;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .typing span {
+      width: 8px; height: 8px;
+      background: #94a3b8;
+      border-radius: 50%;
+      animation: bounce 1s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    .chat-input {
+      padding: 16px;
+      display: flex;
+      gap: 10px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+    }
+    .chat-input input {
+      flex: 1;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 25px;
+      padding: 10px 16px;
+      font-size: 14px;
+      outline: none;
+    }
+    .chat-input input:focus { border-color: #4f46e5; }
+    .send-btn {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .send-btn:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="avatar">🤖</div>
+      <div class="header-text">
+        <h3>AI Support Bot</h3>
+        <p><span class="online-dot"></span>Online • Always here to help</p>
+      </div>
+    </div>
+    <div class="chat-messages" id="messages">
+      <div class="message bot-message">
+        👋 Hello! Welcome! How can I help you today?
+      </div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your message..." />
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+  <script>
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("userInput");
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+    function addMessage(text, type) {
+      const div = document.createElement("div");
+      div.className = "message " + type;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    function showTyping() {
+      const div = document.createElement("div");
+      div.className = "typing";
+      div.id = "typing";
+      div.innerHTML = "<span></span><span></span><span></span>";
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      addMessage(text, "user-message");
+      showTyping();
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        document.getElementById("typing")?.remove();
+        addMessage(data.reply, "bot-message");
+      } catch (e) {
+        document.getElementById("typing")?.remove();
+        addMessage("Sorry, something went wrong!", "bot-message");
+      }
+    }
+  </script>
+</body>
+</html>

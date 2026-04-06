@@ -1,0 +1,16 @@
+{
+  "name": "my-support-bot",
+  "version": "1.0.0",
+  "description": "AI Customer Support Bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["ai", "chatbot", "groq"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "groq-sdk": "^1.1.2"
+    }
+}
