@@ -23,14 +23,7 @@
       top: 0;
       z-index: 100;
     }
-    .logo {
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .logo { color: white; font-size: 18px; font-weight: 700; }
     .nav-btns { display: flex; gap: 8px; }
     .nav-btn {
       padding: 8px 20px;
@@ -42,16 +35,10 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .nav-btn.active {
-      background: #4f46e5;
-      color: white;
-      border-color: #4f46e5;
-    }
+    .nav-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; }
     .nav-btn:hover { background: rgba(79,70,229,0.2); }
     .page { display: none; padding: 24px; }
     .page.active { display: block; }
-
-    /* Stats */
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -67,8 +54,6 @@
     .stat-label { color: #64748b; font-size: 12px; margin-bottom: 8px; }
     .stat-value { color: white; font-size: 24px; font-weight: 700; }
     .stat-change { color: #22c55e; font-size: 11px; margin-top: 6px; }
-
-    /* Charts */
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -81,18 +66,8 @@
       padding: 18px;
       border: 1px solid rgba(79,70,229,0.2);
     }
-    .card-title {
-      color: #a5b4fc;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-    .bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      height: 100px;
-    }
+    .card-title { color: #a5b4fc; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .bars { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
     .bar-wrap {
       flex: 1;
       display: flex;
@@ -102,14 +77,8 @@
       height: 100%;
       justify-content: flex-end;
     }
-    .bar {
-      width: 100%;
-      background: #4f46e5;
-      border-radius: 4px 4px 0 0;
-    }
+    .bar { width: 100%; background: #4f46e5; border-radius: 4px 4px 0 0; }
     .bar-label { color: #64748b; font-size: 10px; }
-
-    /* Inventory */
     .inv-item {
       display: flex;
       align-items: center;
@@ -119,16 +88,10 @@
     }
     .inv-item:last-child { border: none; }
     .inv-name { color: #e2e8f0; font-size: 13px; }
-    .badge {
-      font-size: 11px;
-      padding: 3px 10px;
-      border-radius: 10px;
-    }
+    .badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
     .badge.low { background: rgba(239,68,68,0.2); color: #ef4444; }
     .badge.ok { background: rgba(34,197,94,0.2); color: #22c55e; }
     .badge.mid { background: rgba(234,179,8,0.2); color: #eab308; }
-
-    /* AI Prediction */
     .prediction {
       background: linear-gradient(135deg, #1e1e3f, #2d2b55);
       border-radius: 14px;
@@ -147,14 +110,7 @@
     .pred-item:last-child { border: none; }
     .pred-text { color: #e2e8f0; font-size: 12px; }
     .pred-value { color: #818cf8; font-size: 12px; font-weight: 600; }
-
-    /* Add Sale Form */
-    .form-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
+    .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
     .form-input {
       flex: 1;
       min-width: 120px;
@@ -178,13 +134,7 @@
       font-weight: 600;
     }
     .form-btn:hover { background: #6366f1; }
-
-    /* Sales Table */
-    .sales-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
+    .sales-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .sales-table th {
       color: #64748b;
       text-align: left;
@@ -196,12 +146,7 @@
       padding: 10px 12px;
       border-bottom: 1px solid rgba(79,70,229,0.1);
     }
-
-    /* Chat */
-    .chat-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
+    .chat-container { max-width: 600px; margin: 0 auto; }
     .chat-messages {
       background: #1e1e3f;
       border-radius: 14px;
@@ -214,15 +159,7 @@
       border: 1px solid rgba(79,70,229,0.2);
       margin-bottom: 16px;
     }
-    .chat-messages::-webkit-scrollbar { width: 4px; }
-    .chat-messages::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
-    .message {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 18px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+    .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
     .bot-message {
       background: #16123a;
       color: #e2e8f0;
@@ -258,10 +195,7 @@
       0%, 60%, 100% { transform: translateY(0); }
       30% { transform: translateY(-6px); }
     }
-    .chat-input-row {
-      display: flex;
-      gap: 10px;
-    }
+    .chat-input-row { display: flex; gap: 10px; }
     .chat-input-row input {
       flex: 1;
       background: #1e1e3f;
@@ -272,7 +206,6 @@
       font-size: 14px;
       outline: none;
     }
-    .chat-input-row input::placeholder { color: #64748b; }
     .chat-input-row input:focus { border-color: #4f46e5; }
     .send-btn {
       background: #4f46e5;
@@ -285,7 +218,6 @@
       font-size: 18px;
     }
     .send-btn:hover { background: #6366f1; }
-
     @media (max-width: 600px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
       .two-col { grid-template-columns: 1fr; }
@@ -302,9 +234,7 @@
     </div>
   </div>
 
-  <!-- Dashboard -->
   <div class="page active" id="dashboard">
-
     <div class="stats">
       <div class="stat">
         <div class="stat-label">Today's Sales</div>
@@ -328,11 +258,10 @@
       </div>
     </div>
 
-    <!-- Add Sale -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-title">➕ Add New Sale</div>
       <div class="form-row">
-        <input class="form-input" id="productName" placeholder="Product name (e.g. Shirt)" />
+        <input class="form-input" id="productName" placeholder="Product name" />
         <input class="form-input" id="saleAmount" placeholder="Amount (₹)" type="number" />
         <input class="form-input" id="saleQty" placeholder="Qty sold" type="number" />
         <button class="form-btn" onclick="addSale()">Add Sale</button>
@@ -340,7 +269,6 @@
     </div>
 
     <div class="two-col">
-      <!-- Sales Chart -->
       <div class="card">
         <div class="card-title">📈 Weekly Sales Chart</div>
         <div class="bars" id="salesBars">
@@ -354,7 +282,6 @@
         </div>
       </div>
 
-      <!-- Inventory -->
       <div class="card">
         <div class="card-title">📦 Inventory Status</div>
         <div id="inventoryList">
@@ -366,7 +293,6 @@
       </div>
     </div>
 
-    <!-- AI Predictions -->
     <div class="prediction">
       <div class="pred-title">🤖 AI Sales Predictions</div>
       <div class="pred-item">
@@ -383,7 +309,6 @@
       </div>
     </div>
 
-    <!-- Sales History -->
     <div class="card">
       <div class="card-title">🧾 Sales History</div>
       <table class="sales-table">
@@ -396,14 +321,12 @@
           </tr>
         </thead>
         <tbody id="salesHistory">
-          <tr><td colspan="4" style="color:#64748b;text-align:center;padding:20px">No sales yet — add your first sale above!</td></tr>
+          <tr><td colspan="4" style="color:#64748b;text-align:center;padding:20px">Loading...</td></tr>
         </tbody>
       </table>
     </div>
-
   </div>
 
-  <!-- Chat Bot -->
   <div class="page" id="chat">
     <div class="chat-container">
       <div class="chat-messages" id="messages">
@@ -419,7 +342,6 @@
   </div>
 
   <script>
-    // Navigation
     function showPage(id, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -427,12 +349,26 @@
       btn.classList.add('active');
     }
 
-    // Sales Data
-    let sales = [];
     let weeklyData = [0,0,0,0,0,0,0];
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-    function addSale() {
+    // Load sales from database on page load
+    async function loadSales() {
+      try {
+        const res = await fetch("/api/sales");
+        const sales = await res.json();
+        weeklyData = [0,0,0,0,0,0,0];
+        sales.forEach(s => {
+          const day = new Date(s.created_at).getDay();
+          weeklyData[day] += parseFloat(s.amount);
+        });
+        updateDashboard(sales);
+      } catch (e) {
+        console.error("Failed to load sales", e);
+      }
+    }
+
+    async function addSale() {
       const product = document.getElementById('productName').value.trim();
       const amount = parseFloat(document.getElementById('saleAmount').value);
       const qty = parseInt(document.getElementById('saleQty').value);
@@ -442,37 +378,40 @@
         return;
       }
 
-      const now = new Date();
-      const dayIndex = now.getDay();
-      weeklyData[dayIndex] += amount;
-
-      sales.unshift({ product, amount, qty, time: now.toLocaleTimeString() });
-
-      document.getElementById('productName').value = '';
-      document.getElementById('saleAmount').value = '';
-      document.getElementById('saleQty').value = '';
-
-      updateDashboard();
+      try {
+        await fetch("/api/sales", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product, amount, qty })
+        });
+        document.getElementById('productName').value = '';
+        document.getElementById('saleAmount').value = '';
+        document.getElementById('saleQty').value = '';
+        loadSales(); // Reload from DB
+      } catch (e) {
+        alert("Failed to save sale!");
+      }
     }
 
-    function updateDashboard() {
+    function updateDashboard(sales) {
       const todayIdx = new Date().getDay();
       const todayTotal = weeklyData[todayIdx];
       const weekTotal = weeklyData.reduce((a,b) => a+b, 0);
+      const todaySales = sales.filter(s => 
+        new Date(s.created_at).toDateString() === new Date().toDateString()
+      );
 
       document.getElementById('todaySales').textContent = '₹' + todayTotal.toLocaleString();
-      document.getElementById('todayOrders').textContent = sales.length + ' orders today';
+      document.getElementById('todayOrders').textContent = todaySales.length + ' orders today';
       document.getElementById('weekRevenue').textContent = '₹' + weekTotal.toLocaleString();
 
-      // Best seller
       const productTotals = {};
       sales.forEach(s => {
-        productTotals[s.product] = (productTotals[s.product] || 0) + s.amount;
+        productTotals[s.product] = (productTotals[s.product] || 0) + parseFloat(s.amount);
       });
       const best = Object.entries(productTotals).sort((a,b) => b[1]-a[1])[0];
       document.getElementById('bestSeller').textContent = best ? best[0] : '-';
 
-      // Update bars
       const maxVal = Math.max(...weeklyData, 1);
       const bars = document.querySelectorAll('#salesBars .bar');
       const reorderedData = [...weeklyData.slice(1), weeklyData[0]];
@@ -481,7 +420,6 @@
         bar.style.height = pct + '%';
       });
 
-      // Update sales history
       const tbody = document.getElementById('salesHistory');
       if (sales.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" style="color:#64748b;text-align:center;padding:20px">No sales yet!</td></tr>';
@@ -489,14 +427,13 @@
         tbody.innerHTML = sales.slice(0,10).map(s => `
           <tr>
             <td>${s.product}</td>
-            <td style="color:#22c55e">₹${s.amount.toLocaleString()}</td>
+            <td style="color:#22c55e">₹${parseFloat(s.amount).toLocaleString()}</td>
             <td>${s.qty}</td>
-            <td style="color:#64748b">${s.time}</td>
+            <td style="color:#64748b">${new Date(s.created_at).toLocaleString()}</td>
           </tr>
         `).join('');
       }
 
-      // AI Predictions
       const maxDay = reorderedData.indexOf(Math.max(...reorderedData));
       const avgSale = weekTotal / 7;
       document.getElementById('pred1').textContent = '₹' + Math.round(avgSale * 1.1).toLocaleString();
@@ -549,6 +486,9 @@
         addMessage("Sorry, something went wrong!", "bot-message");
       }
     }
+
+    // Load sales when page opens
+    loadSales();
   </script>
 </body>
 </html>
