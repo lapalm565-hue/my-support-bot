@@ -10,7 +10,7 @@ const client = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-const CHAT_MODEL = "llama3-8b-8192";
+const CHAT_MODEL = "llama-3.1-8b-instant";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
