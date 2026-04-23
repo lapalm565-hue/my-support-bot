@@ -24,6 +24,7 @@
       z-index: 100;
     }
     .logo { color: white; font-size: 18px; font-weight: 700; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
     .nav-btns { display: flex; gap: 8px; }
     .nav-btn {
       padding: 8px 20px;
@@ -37,6 +38,18 @@
     }
     .nav-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; }
     .nav-btn:hover { background: rgba(79,70,229,0.2); }
+    .logout-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(239,68,68,0.4);
+      background: transparent;
+      color: #ef4444;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.2); }
+    .business-name { color: #a5b4fc; font-size: 13px; }
     .page { display: none; padding: 24px; }
     .page.active { display: block; }
     .stats {
@@ -228,9 +241,13 @@
 
   <div class="nav">
     <div class="logo">🤖 AI Business Suite</div>
-    <div class="nav-btns">
-      <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
-      <button class="nav-btn" onclick="showPage('chat', this)">💬 Chat Bot</button>
+    <div class="nav-right">
+      <div class="nav-btns">
+        <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+        <button class="nav-btn" onclick="showPage('chat', this)">💬 Chat Bot</button>
+      </div>
+      <span class="business-name" id="businessName"></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </div>
 
@@ -297,15 +314,15 @@
       <div class="pred-title">🤖 AI Sales Predictions</div>
       <div class="pred-item">
         <span class="pred-text">Expected sales tomorrow</span>
-        <span class="pred-value" id="pred1">Add sales data first</span>
+        <span class="pred-value" id="pred1">Loading...</span>
       </div>
       <div class="pred-item">
         <span class="pred-text">Best selling day this week</span>
-        <span class="pred-value" id="pred2">-</span>
+        <span class="pred-value" id="pred2">Loading...</span>
       </div>
       <div class="pred-item">
         <span class="pred-text">Recommended restock</span>
-        <span class="pred-value" id="pred3">-</span>
+        <span class="pred-value" id="pred3">Loading...</span>
       </div>
     </div>
 
@@ -342,6 +359,23 @@
   </div>
 
   <script>
+    // Check login
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) {
+      window.location.href = '/';
+    }
+
+    // Show business name
+    document.getElementById('businessName').textContent = user.business_name || '';
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+
     function showPage(id, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -352,10 +386,11 @@
     let weeklyData = [0,0,0,0,0,0,0];
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-    // Load sales from database on page load
     async function loadSales() {
       try {
-        const res = await fetch("/api/sales");
+        const res = await fetch("/api/sales", {
+          headers: { "Authorization": "Bearer " + token }
+        });
         const sales = await res.json();
         weeklyData = [0,0,0,0,0,0,0];
         sales.forEach(s => {
@@ -381,13 +416,16 @@
       try {
         await fetch("/api/sales", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
           body: JSON.stringify({ product, amount, qty })
         });
         document.getElementById('productName').value = '';
         document.getElementById('saleAmount').value = '';
         document.getElementById('saleQty').value = '';
-        loadSales(); // Reload from DB
+        loadSales();
       } catch (e) {
         alert("Failed to save sale!");
       }
@@ -397,7 +435,7 @@
       const todayIdx = new Date().getDay();
       const todayTotal = weeklyData[todayIdx];
       const weekTotal = weeklyData.reduce((a,b) => a+b, 0);
-      const todaySales = sales.filter(s => 
+      const todaySales = sales.filter(s =>
         new Date(s.created_at).toDateString() === new Date().toDateString()
       );
 
@@ -433,12 +471,20 @@
           </tr>
         `).join('');
       }
+    }
 
-      const maxDay = reorderedData.indexOf(Math.max(...reorderedData));
-      const avgSale = weekTotal / 7;
-      document.getElementById('pred1').textContent = '₹' + Math.round(avgSale * 1.1).toLocaleString();
-      document.getElementById('pred2').textContent = days[(maxDay + 1) % 7];
-      document.getElementById('pred3').textContent = 'Jackets (only 8 left!)';
+    async function loadPredictions() {
+      try {
+        const res = await fetch("/api/predictions", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const data = await res.json();
+        document.getElementById('pred1').textContent = data.nextWeekSales || '-';
+        document.getElementById('pred2').textContent = data.bestProduct || '-';
+        document.getElementById('pred3').textContent = data.restockAlert || '-';
+      } catch (e) {
+        console.error("Failed to load predictions", e);
+      }
     }
 
     // Chat Bot
@@ -487,8 +533,8 @@
       }
     }
 
-    // Load sales when page opens
     loadSales();
+    loadPredictions();
   </script>
 </body>
 </html>
