@@ -63,7 +63,8 @@ app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 500,
+  skip: (req) => req.path === '/' || req.path === '/dashboard'
 });
 app.use(limiter);
 
