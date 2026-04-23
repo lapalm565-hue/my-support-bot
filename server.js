@@ -63,8 +63,7 @@ app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
-  skip: (req) => req.path === '/' || req.path === '/dashboard'
+  max: 500
 });
 app.use(limiter);
 
@@ -83,7 +82,23 @@ function authMiddleware(req, res, next) {
   }
 }
 
-app.use(express.static(__dirname));
+// ✅ Fix - disable auto index.html serving
+app.use(express.static(__dirname, { index: false }));
+
+// Login page (default route)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
+// Dashboard (protected page)
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Chatbot (public page)
+app.get("/chatbot", (req, res) => {
+  res.sendFile(path.join(__dirname, "chatbot.html"));
+});
 
 // Signup
 app.post("/api/signup", async (req, res, next) => {
@@ -276,7 +291,7 @@ Always respond in this exact JSON format with no extra text:
   }
 });
 
-// Chat (public - for customers)
+// Chat (public)
 app.post("/chat", async (req, res, next) => {
   try {
     const { message } = req.body;
@@ -301,21 +316,6 @@ ${knowledge}`
   } catch (error) {
     next(error);
   }
-});
-
-// Serve chatbot page (public)
-app.get("/chatbot", (req, res) => {
-  res.sendFile(path.join(__dirname, "chatbot.html"));
-});
-
-// Serve dashboard (protected page)
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// Serve login page
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 // Global error handler
