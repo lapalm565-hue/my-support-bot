@@ -36,12 +36,14 @@ async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS sales (
       id SERIAL PRIMARY KEY,
-      user_id INTEGER REFERENCES users(id),
       product VARCHAR(255),
       amount DECIMAL,
       qty INTEGER,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
+  `);
+  await pool.query(`
+    ALTER TABLE sales ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)
   `);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_product ON sales(product)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at)`);
@@ -106,7 +108,11 @@ app.post("/api/signup", async (req, res, next) => {
     );
 
     const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({ token, user });
   } catch (error) {
@@ -139,7 +145,11 @@ app.post("/api/login", async (req, res, next) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     res.json({
       token,
@@ -302,6 +312,7 @@ app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Serve login page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "login.html"));
 });
