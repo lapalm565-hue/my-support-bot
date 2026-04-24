@@ -4,184 +4,357 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Business Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
+    :root {
+      --bg: #080b14;
+      --surface: #0e1420;
+      --surface2: #141928;
+      --border: rgba(99,102,241,0.15);
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent3: #4f46e5;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #475569;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      color: #e2e8f0;
     }
+
+    /* Navbar */
     .nav {
-      background: #1a1a2e;
-      padding: 16px 24px;
+      background: rgba(14,20,32,0.95);
+      backdrop-filter: blur(20px);
+      padding: 0 28px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(79,70,229,0.3);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
     }
-    .logo { color: white; font-size: 18px; font-weight: 700; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-btns { display: flex; gap: 8px; }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+    .nav-center { display: flex; gap: 4px; }
     .nav-btn {
-      padding: 8px 20px;
-      border-radius: 20px;
-      border: 1px solid rgba(79,70,229,0.4);
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
       background: transparent;
-      color: #a5b4fc;
+      color: var(--text2);
       font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .nav-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; }
-    .nav-btn:hover { background: rgba(79,70,229,0.2); }
+    .nav-btn:hover { background: var(--surface2); color: var(--text); }
+    .nav-btn.active { background: var(--accent); color: white; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .business-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--accent2);
+      font-weight: 500;
+    }
     .logout-btn {
       padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 8px;
+      border: 1px solid rgba(239,68,68,0.3);
       background: transparent;
-      color: #ef4444;
+      color: var(--red);
       font-size: 13px;
       cursor: pointer;
       transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
     }
-    .logout-btn:hover { background: rgba(239,68,68,0.2); }
-    .business-name { color: #a5b4fc; font-size: 13px; }
-    .page { display: none; padding: 24px; }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+    /* Pages */
+    .page { display: none; padding: 28px; animation: fadeIn 0.3s ease; }
     .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Page Header */
+    .page-header { margin-bottom: 24px; }
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-subtitle { color: var(--text3); font-size: 13px; }
+
+    /* Stats Grid */
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .stat {
-      background: #1e1e3f;
-      border-radius: 14px;
-      padding: 18px;
-      border: 1px solid rgba(79,70,229,0.2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
     }
-    .stat-label { color: #64748b; font-size: 12px; margin-bottom: 8px; }
-    .stat-value { color: white; font-size: 24px; font-weight: 700; }
-    .stat-change { color: #22c55e; font-size: 11px; margin-top: 6px; }
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+    .stat:hover { transform: translateY(-2px); border-color: rgba(99,102,241,0.3); }
+    .stat::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
     }
+    .stat-icon {
+      font-size: 20px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .stat-label { color: var(--text3); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .stat-value { color: var(--text); font-size: 26px; font-weight: 700; font-family: 'Syne', sans-serif; margin-bottom: 6px; }
+    .stat-change { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+    .stat-change.up { color: var(--green); }
+    .stat-change.neutral { color: var(--text3); }
+    .stat-change.down { color: var(--red); }
+
+    /* Grid Layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+    /* Cards */
     .card {
-      background: #1e1e3f;
-      border-radius: 14px;
-      padding: 18px;
-      border: 1px solid rgba(79,70,229,0.2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color 0.2s;
     }
-    .card-title { color: #a5b4fc; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
-    .bars { display: flex; align-items: flex-end; gap: 8px; height: 100px; }
-    .bar-wrap {
-      flex: 1;
+    .card:hover { border-color: rgba(99,102,241,0.25); }
+    .card-header {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
-      height: 100%;
-      justify-content: flex-end;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
-    .bar { width: 100%; background: #4f46e5; border-radius: 4px 4px 0 0; }
-    .bar-label { color: #64748b; font-size: 10px; }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(99,102,241,0.15);
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    /* Add Sale Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--text3);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--text3); }
+    .add-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: var(--accent3); transform: translateY(-1px); }
+
+    /* Charts */
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* Inventory */
     .inv-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(79,70,229,0.1);
+      border-bottom: 1px solid rgba(99,102,241,0.07);
     }
-    .inv-item:last-child { border: none; }
-    .inv-name { color: #e2e8f0; font-size: 13px; }
-    .badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
-    .badge.low { background: rgba(239,68,68,0.2); color: #ef4444; }
-    .badge.ok { background: rgba(34,197,94,0.2); color: #22c55e; }
-    .badge.mid { background: rgba(234,179,8,0.2); color: #eab308; }
+    .inv-item:last-child { border: none; padding-bottom: 0; }
+    .inv-left { display: flex; align-items: center; gap: 10px; }
+    .inv-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .inv-name { color: var(--text); font-size: 13px; font-weight: 500; }
+    .inv-qty { color: var(--text3); font-size: 11px; }
+    .badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .badge.low { background: rgba(239,68,68,0.15); color: var(--red); }
+    .badge.ok { background: rgba(16,185,129,0.15); color: var(--green); }
+    .badge.mid { background: rgba(245,158,11,0.15); color: var(--yellow); }
+
+    /* AI Predictions */
     .prediction {
-      background: linear-gradient(135deg, #1e1e3f, #2d2b55);
-      border-radius: 14px;
-      padding: 18px;
-      border: 1px solid rgba(79,70,229,0.3);
+      background: linear-gradient(135deg, var(--surface) 0%, #141a2e 100%);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .prediction::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+    }
+    .pred-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 16px;
     }
-    .pred-title { color: #a5b4fc; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .pred-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .pred-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .pred-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(79,70,229,0.1);
+      background: rgba(99,102,241,0.06);
+      border: 1px solid rgba(99,102,241,0.1);
+      border-radius: 12px;
+      padding: 14px;
     }
-    .pred-item:last-child { border: none; }
-    .pred-text { color: #e2e8f0; font-size: 12px; }
-    .pred-value { color: #818cf8; font-size: 12px; font-weight: 600; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-    .form-input {
-      flex: 1;
-      min-width: 120px;
-      background: #0f0c29;
-      border: 1px solid rgba(79,70,229,0.4);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: #e2e8f0;
-      font-size: 13px;
-      outline: none;
-    }
-    .form-input:focus { border-color: #4f46e5; }
-    .form-btn {
-      background: #4f46e5;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .form-btn:hover { background: #6366f1; }
-    .sales-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .pred-label { color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 500; margin-bottom: 6px; }
+    .pred-value { color: var(--accent2); font-size: 14px; font-weight: 600; font-family: 'Syne', sans-serif; }
+
+    /* Sales Table */
+    .table-wrap { overflow-x: auto; }
+    .sales-table { width: 100%; border-collapse: collapse; font-size: 13px; }
     .sales-table th {
-      color: #64748b;
+      color: var(--text3);
       text-align: left;
-      padding: 8px 12px;
-      border-bottom: 1px solid rgba(79,70,229,0.2);
+      padding: 10px 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
     }
     .sales-table td {
-      color: #e2e8f0;
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(79,70,229,0.1);
+      color: var(--text);
+      padding: 12px;
+      border-bottom: 1px solid rgba(99,102,241,0.05);
     }
-    .chat-container { max-width: 600px; margin: 0 auto; }
+    .sales-table tr:last-child td { border: none; }
+    .sales-table tr:hover td { background: rgba(99,102,241,0.03); }
+    .amount-cell { color: var(--green); font-weight: 600; }
+    .time-cell { color: var(--text3); font-size: 12px; }
+
+    /* Chat */
+    .chat-container { max-width: 640px; margin: 0 auto; }
+    .chat-header { text-align: center; margin-bottom: 20px; }
+    .chat-header h2 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .chat-header p { color: var(--text3); font-size: 13px; }
     .chat-messages {
-      background: #1e1e3f;
-      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 20px;
-      height: 400px;
+      height: 420px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      border: 1px solid rgba(79,70,229,0.2);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
-    .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+    .message {
+      max-width: 78%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
     .bot-message {
-      background: #16123a;
-      color: #e2e8f0;
+      background: var(--surface2);
+      color: var(--text);
       border-bottom-left-radius: 4px;
       align-self: flex-start;
-      border: 1px solid rgba(79,70,229,0.2);
+      border: 1px solid var(--border);
     }
     .user-message {
-      background: #4f46e5;
+      background: var(--accent);
       color: white;
       border-bottom-right-radius: 4px;
       align-self: flex-end;
@@ -189,16 +362,16 @@
     .typing {
       display: flex;
       gap: 5px;
-      padding: 12px 16px;
-      background: #16123a;
-      border-radius: 18px;
+      padding: 14px 18px;
+      background: var(--surface2);
+      border-radius: 16px;
       border-bottom-left-radius: 4px;
       align-self: flex-start;
-      border: 1px solid rgba(79,70,229,0.2);
+      border: 1px solid var(--border);
     }
     .typing span {
-      width: 8px; height: 8px;
-      background: #4f46e5;
+      width: 7px; height: 7px;
+      background: var(--accent);
       border-radius: 50%;
       animation: bounce 1s infinite;
     }
@@ -208,167 +381,274 @@
       0%, 60%, 100% { transform: translateY(0); }
       30% { transform: translateY(-6px); }
     }
-    .chat-input-row { display: flex; gap: 10px; }
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+    }
     .chat-input-row input {
       flex: 1;
-      background: #1e1e3f;
-      border: 1px solid rgba(79,70,229,0.4);
-      border-radius: 25px;
-      padding: 12px 18px;
-      color: #e2e8f0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 18px;
+      color: var(--text);
       font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
       outline: none;
+      transition: border-color 0.2s;
     }
-    .chat-input-row input:focus { border-color: #4f46e5; }
+    .chat-input-row input:focus { border-color: var(--accent); }
+    .chat-input-row input::placeholder { color: var(--text3); }
     .send-btn {
-      background: #4f46e5;
+      background: var(--accent);
       color: white;
       border: none;
-      border-radius: 50%;
-      width: 46px;
-      height: 46px;
+      border-radius: 12px;
+      width: 48px;
+      height: 48px;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 16px;
+      transition: all 0.2s;
+      flex-shrink: 0;
     }
-    .send-btn:hover { background: #6366f1; }
-    @media (max-width: 600px) {
+    .send-btn:hover { background: var(--accent3); transform: scale(1.05); }
+
+    /* Empty state */
+    .empty { color: var(--text3); text-align: center; padding: 30px; font-size: 13px; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
-      .two-col { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .pred-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .nav-center { display: none; }
+      .page { padding: 16px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="nav">
-    <div class="logo">🤖 AI Business Suite</div>
-    <div class="nav-right">
-      <div class="nav-btns">
-        <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
-        <button class="nav-btn" onclick="showPage('chat', this)">💬 Chat Bot</button>
-      </div>
-      <span class="business-name" id="businessName"></span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      AI Business Suite
     </div>
-  </div>
+    <div class="nav-center">
+      <button class="nav-btn active" onclick="showPage('dashboard', this)">📊 Dashboard</button>
+      <button class="nav-btn" onclick="showPage('chat', this)">💬 Chat Bot</button>
+    </div>
+    <div class="nav-right">
+      <div class="business-badge" id="businessName">Loading...</div>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
 
+  <!-- Dashboard -->
   <div class="page active" id="dashboard">
+
+    <div class="page-header">
+      <div class="page-title">Business Overview</div>
+      <div class="page-subtitle">Track your sales, inventory and AI predictions in real time</div>
+    </div>
+
+    <!-- Stats -->
     <div class="stats">
       <div class="stat">
-        <div class="stat-label">Today's Sales</div>
+        <span class="stat-icon">💰</span>
+        <div class="stat-label">Today's Revenue</div>
         <div class="stat-value" id="todaySales">₹0</div>
-        <div class="stat-change" id="todayOrders">0 orders today</div>
+        <div class="stat-change neutral" id="todayOrders">0 orders today</div>
       </div>
       <div class="stat">
+        <span class="stat-icon">📈</span>
         <div class="stat-label">Weekly Revenue</div>
         <div class="stat-value" id="weekRevenue">₹0</div>
-        <div class="stat-change">This week</div>
+        <div class="stat-change up" id="weekChange">This week</div>
       </div>
       <div class="stat">
+        <span class="stat-icon">🏆</span>
         <div class="stat-label">Best Seller</div>
-        <div class="stat-value" id="bestSeller" style="font-size:16px">-</div>
-        <div class="stat-change">Top product</div>
+        <div class="stat-value" id="bestSeller" style="font-size:16px;padding-top:4px">—</div>
+        <div class="stat-change neutral">Top product</div>
       </div>
       <div class="stat">
-        <div class="stat-label">Low Stock Alert</div>
-        <div class="stat-value" id="lowStock" style="color:#ef4444">0</div>
-        <div class="stat-change" style="color:#ef4444">Items need restock</div>
+        <span class="stat-icon">⚠️</span>
+        <div class="stat-label">Low Stock</div>
+        <div class="stat-value" id="lowStock" style="color:var(--red)">0</div>
+        <div class="stat-change down">Items need restock</div>
       </div>
     </div>
 
+    <!-- Add Sale -->
     <div class="card" style="margin-bottom:16px">
-      <div class="card-title">➕ Add New Sale</div>
-      <div class="form-row">
-        <input class="form-input" id="productName" placeholder="Product name" />
-        <input class="form-input" id="saleAmount" placeholder="Amount (₹)" type="number" />
-        <input class="form-input" id="saleQty" placeholder="Qty sold" type="number" />
-        <button class="form-btn" onclick="addSale()">Add Sale</button>
+      <div class="card-header">
+        <div class="card-title">➕ Record New Sale</div>
+        <div class="card-badge">LIVE</div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Product Name</label>
+          <input class="form-input" id="productName" placeholder="e.g. Blue Shirt" />
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input class="form-input" id="saleAmount" placeholder="1500" type="number" />
+        </div>
+        <div class="form-group">
+          <label>Qty Sold</label>
+          <input class="form-input" id="saleQty" placeholder="5" type="number" />
+        </div>
+        <button class="add-btn" onclick="addSale()">Add Sale</button>
       </div>
     </div>
 
-    <div class="two-col">
+    <!-- Charts Row -->
+    <div class="grid-3" style="margin-bottom:16px">
       <div class="card">
-        <div class="card-title">📈 Weekly Sales Chart</div>
-        <div class="bars" id="salesBars">
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Mon</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Tue</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Wed</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Thu</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Fri</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Sat</div></div>
-          <div class="bar-wrap"><div class="bar" style="height:10%"></div><div class="bar-label">Sun</div></div>
+        <div class="card-header">
+          <div class="card-title">📈 Weekly Sales</div>
+          <div class="card-badge">7 DAYS</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="salesChart"></canvas>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-title">📦 Inventory Status</div>
+        <div class="card-header">
+          <div class="card-title">🥧 Top Products</div>
+          <div class="card-badge">SHARE</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory + Predictions -->
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 Inventory Status</div>
+          <div class="card-badge">LIVE</div>
+        </div>
         <div id="inventoryList">
-          <div class="inv-item"><span class="inv-name">Shirts</span><span class="badge ok">100 in stock</span></div>
-          <div class="inv-item"><span class="inv-name">Jeans</span><span class="badge ok">80 in stock</span></div>
-          <div class="inv-item"><span class="inv-name">Shoes</span><span class="badge mid">25 in stock</span></div>
-          <div class="inv-item"><span class="inv-name">Jackets</span><span class="badge low">8 left!</span></div>
+          <div class="inv-item">
+            <div class="inv-left">
+              <div class="inv-dot" style="background:var(--green)"></div>
+              <div>
+                <div class="inv-name">Shirts</div>
+                <div class="inv-qty">100 units</div>
+              </div>
+            </div>
+            <span class="badge ok">In Stock</span>
+          </div>
+          <div class="inv-item">
+            <div class="inv-left">
+              <div class="inv-dot" style="background:var(--green)"></div>
+              <div>
+                <div class="inv-name">Jeans</div>
+                <div class="inv-qty">80 units</div>
+              </div>
+            </div>
+            <span class="badge ok">In Stock</span>
+          </div>
+          <div class="inv-item">
+            <div class="inv-left">
+              <div class="inv-dot" style="background:var(--yellow)"></div>
+              <div>
+                <div class="inv-name">Shoes</div>
+                <div class="inv-qty">25 units</div>
+              </div>
+            </div>
+            <span class="badge mid">Low</span>
+          </div>
+          <div class="inv-item">
+            <div class="inv-left">
+              <div class="inv-dot" style="background:var(--red)"></div>
+              <div>
+                <div class="inv-name">Jackets</div>
+                <div class="inv-qty">8 units</div>
+              </div>
+            </div>
+            <span class="badge low">Critical</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="prediction">
+        <div class="pred-header">
+          <span>🤖</span>
+          <div class="pred-title">AI Predictions</div>
+        </div>
+        <div class="pred-grid">
+          <div class="pred-item">
+            <div class="pred-label">Next Week Sales</div>
+            <div class="pred-value" id="pred1">Loading...</div>
+          </div>
+          <div class="pred-item">
+            <div class="pred-label">Best Product</div>
+            <div class="pred-value" id="pred2">Loading...</div>
+          </div>
+          <div class="pred-item">
+            <div class="pred-label">Restock Alert</div>
+            <div class="pred-value" id="pred3">Loading...</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="prediction">
-      <div class="pred-title">🤖 AI Sales Predictions</div>
-      <div class="pred-item">
-        <span class="pred-text">Expected sales tomorrow</span>
-        <span class="pred-value" id="pred1">Loading...</span>
+    <!-- Sales History -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🧾 Sales History</div>
+        <div class="card-badge">LAST 50</div>
       </div>
-      <div class="pred-item">
-        <span class="pred-text">Best selling day this week</span>
-        <span class="pred-value" id="pred2">Loading...</span>
-      </div>
-      <div class="pred-item">
-        <span class="pred-text">Recommended restock</span>
-        <span class="pred-value" id="pred3">Loading...</span>
+      <div class="table-wrap">
+        <table class="sales-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Amount</th>
+              <th>Qty</th>
+              <th>Date & Time</th>
+            </tr>
+          </thead>
+          <tbody id="salesHistory">
+            <tr><td colspan="4" class="empty">Loading sales data...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">🧾 Sales History</div>
-      <table class="sales-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Amount</th>
-            <th>Qty</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody id="salesHistory">
-          <tr><td colspan="4" style="color:#64748b;text-align:center;padding:20px">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
+  <!-- Chat Bot -->
   <div class="page" id="chat">
     <div class="chat-container">
+      <div class="chat-header">
+        <h2>💬 AI Support Bot</h2>
+        <p>Test how your customers experience the chatbot</p>
+      </div>
       <div class="chat-messages" id="messages">
         <div class="message bot-message">
           👋 Hello! Welcome to AI Support! How can I help you today?
         </div>
       </div>
       <div class="chat-input-row">
-        <input type="text" id="userInput" placeholder="Type your message..." />
+        <input type="text" id="userInput" placeholder="Type a message..." />
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Check login
+    // Auth check
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (!token) {
-      window.location.href = '/';
-    }
-
-    // Show business name
-    document.getElementById('businessName').textContent = user.business_name || '';
+    if (!token) window.location.href = '/';
+    document.getElementById('businessName').textContent = user.business_name || 'My Business';
 
     function logout() {
       localStorage.removeItem('token');
@@ -383,8 +663,97 @@
       btn.classList.add('active');
     }
 
+    // Charts
+    let salesChartInstance = null;
+    let pieChartInstance = null;
     let weeklyData = [0,0,0,0,0,0,0];
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    function initCharts() {
+      const salesCtx = document.getElementById('salesChart').getContext('2d');
+      salesChartInstance = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets: [{
+            label: 'Sales (₹)',
+            data: [0,0,0,0,0,0,0],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#6366f1',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: {
+              grid: { color: 'rgba(99,102,241,0.06)' },
+              ticks: { color: '#475569', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(99,102,241,0.06)' },
+              ticks: { color: '#475569', font: { size: 11 },
+                callback: v => '₹' + v.toLocaleString()
+              }
+            }
+          }
+        }
+      });
+
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      pieChartInstance = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['No data'],
+          datasets: [{
+            data: [1],
+            backgroundColor: ['rgba(99,102,241,0.2)'],
+            borderColor: ['rgba(99,102,241,0.3)'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12, padding: 10 }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    function updateCharts(sales) {
+      // Line chart
+      const reordered = [...weeklyData.slice(1), weeklyData[0]];
+      salesChartInstance.data.datasets[0].data = reordered;
+      salesChartInstance.update('active');
+
+      // Pie chart
+      const productTotals = {};
+      sales.forEach(s => {
+        productTotals[s.product] = (productTotals[s.product] || 0) + parseFloat(s.amount);
+      });
+      const sorted = Object.entries(productTotals).sort((a,b) => b[1]-a[1]).slice(0,5);
+      if (sorted.length > 0) {
+        const colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6'];
+        pieChartInstance.data.labels = sorted.map(([k]) => k);
+        pieChartInstance.data.datasets[0].data = sorted.map(([,v]) => v);
+        pieChartInstance.data.datasets[0].backgroundColor = colors.slice(0,sorted.length).map(c => c + '99');
+        pieChartInstance.data.datasets[0].borderColor = colors.slice(0,sorted.length);
+        pieChartInstance.update('active');
+      }
+    }
 
     async function loadSales() {
       try {
@@ -398,49 +767,43 @@
           weeklyData[day] += parseFloat(s.amount);
         });
         updateDashboard(sales);
-      } catch (e) {
-        console.error("Failed to load sales", e);
-      }
+        updateCharts(sales);
+      } catch(e) { console.error(e); }
     }
 
     async function addSale() {
       const product = document.getElementById('productName').value.trim();
       const amount = parseFloat(document.getElementById('saleAmount').value);
       const qty = parseInt(document.getElementById('saleQty').value);
-
-      if (!product || !amount || !qty) {
-        alert('Please fill all fields!');
-        return;
-      }
-
+      if (!product || !amount || !qty) { alert('Please fill all fields!'); return; }
       try {
-        await fetch("/api/sales", {
+        const res = await fetch("/api/sales", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-          },
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
           body: JSON.stringify({ product, amount, qty })
         });
-        document.getElementById('productName').value = '';
-        document.getElementById('saleAmount').value = '';
-        document.getElementById('saleQty').value = '';
-        loadSales();
-      } catch (e) {
-        alert("Failed to save sale!");
-      }
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('productName').value = '';
+          document.getElementById('saleAmount').value = '';
+          document.getElementById('saleQty').value = '';
+          loadSales();
+        } else {
+          alert(data.error || 'Failed to save!');
+        }
+      } catch(e) { alert("Failed to save sale!"); }
     }
 
     function updateDashboard(sales) {
       const todayIdx = new Date().getDay();
       const todayTotal = weeklyData[todayIdx];
       const weekTotal = weeklyData.reduce((a,b) => a+b, 0);
-      const todaySales = sales.filter(s =>
+      const todaySalesList = sales.filter(s =>
         new Date(s.created_at).toDateString() === new Date().toDateString()
       );
 
       document.getElementById('todaySales').textContent = '₹' + todayTotal.toLocaleString();
-      document.getElementById('todayOrders').textContent = todaySales.length + ' orders today';
+      document.getElementById('todayOrders').textContent = todaySalesList.length + ' orders today';
       document.getElementById('weekRevenue').textContent = '₹' + weekTotal.toLocaleString();
 
       const productTotals = {};
@@ -448,26 +811,18 @@
         productTotals[s.product] = (productTotals[s.product] || 0) + parseFloat(s.amount);
       });
       const best = Object.entries(productTotals).sort((a,b) => b[1]-a[1])[0];
-      document.getElementById('bestSeller').textContent = best ? best[0] : '-';
-
-      const maxVal = Math.max(...weeklyData, 1);
-      const bars = document.querySelectorAll('#salesBars .bar');
-      const reorderedData = [...weeklyData.slice(1), weeklyData[0]];
-      bars.forEach((bar, i) => {
-        const pct = Math.round((reorderedData[i] / maxVal) * 90) + 10;
-        bar.style.height = pct + '%';
-      });
+      document.getElementById('bestSeller').textContent = best ? best[0] : '—';
 
       const tbody = document.getElementById('salesHistory');
       if (sales.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="color:#64748b;text-align:center;padding:20px">No sales yet!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No sales yet — add your first sale above!</td></tr>';
       } else {
         tbody.innerHTML = sales.slice(0,10).map(s => `
           <tr>
-            <td>${s.product}</td>
-            <td style="color:#22c55e">₹${parseFloat(s.amount).toLocaleString()}</td>
-            <td>${s.qty}</td>
-            <td style="color:#64748b">${new Date(s.created_at).toLocaleString()}</td>
+            <td><strong>${s.product}</strong></td>
+            <td class="amount-cell">₹${parseFloat(s.amount).toLocaleString()}</td>
+            <td>${s.qty} units</td>
+            <td class="time-cell">${new Date(s.created_at).toLocaleString()}</td>
           </tr>
         `).join('');
       }
@@ -479,21 +834,16 @@
           headers: { "Authorization": "Bearer " + token }
         });
         const data = await res.json();
-        document.getElementById('pred1').textContent = data.nextWeekSales || '-';
-        document.getElementById('pred2').textContent = data.bestProduct || '-';
-        document.getElementById('pred3').textContent = data.restockAlert || '-';
-      } catch (e) {
-        console.error("Failed to load predictions", e);
-      }
+        document.getElementById('pred1').textContent = data.nextWeekSales || '—';
+        document.getElementById('pred2').textContent = data.bestProduct || '—';
+        document.getElementById('pred3').textContent = data.restockAlert || '—';
+      } catch(e) { console.error(e); }
     }
 
-    // Chat Bot
+    // Chat
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
-
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") sendMessage();
-    });
+    input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
     function addMessage(text, type) {
       const div = document.createElement("div");
@@ -505,8 +855,7 @@
 
     function showTyping() {
       const div = document.createElement("div");
-      div.className = "typing";
-      div.id = "typing";
+      div.className = "typing"; div.id = "typing";
       div.innerHTML = "<span></span><span></span><span></span>";
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
@@ -527,12 +876,14 @@
         const data = await res.json();
         document.getElementById("typing")?.remove();
         addMessage(data.reply, "bot-message");
-      } catch (e) {
+      } catch(e) {
         document.getElementById("typing")?.remove();
         addMessage("Sorry, something went wrong!", "bot-message");
       }
     }
 
+    // Init
+    initCharts();
     loadSales();
     loadPredictions();
   </script>

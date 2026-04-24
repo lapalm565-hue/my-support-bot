@@ -43,11 +43,20 @@ async function initDB() {
     )
   `);
   await pool.query(`
-    ALTER TABLE sales ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)
+    CREATE TABLE IF NOT EXISTS inventory (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id),
+      name VARCHAR(255) NOT NULL,
+      qty INTEGER DEFAULT 0,
+      low_stock_threshold INTEGER DEFAULT 10,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
   `);
+  await pool.query(`ALTER TABLE sales ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_product ON sales(product)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created_at ON sales(created_at)`);
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_user_id ON sales(user_id)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_inventory_user_id ON inventory(user_id)`);
   console.log("Database ready!");
 }
 
@@ -56,9 +65,7 @@ const knowledge = fs.existsSync("knowledge.txt")
   : "You are a helpful customer support agent.";
 
 app.use(express.json());
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 
 const limiter = rateLimit({
@@ -67,12 +74,9 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Auth middleware
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
@@ -82,135 +86,76 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// ✅ Fix - disable auto index.html serving
 app.use(express.static(__dirname, { index: false }));
 
-// Login page (default route)
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "login.html"));
-});
-
-// Dashboard (protected page)
-app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-// Chatbot (public page)
-app.get("/chatbot", (req, res) => {
-  res.sendFile(path.join(__dirname, "chatbot.html"));
-});
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "login.html")));
+app.get("/dashboard", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/chatbot", (req, res) => res.sendFile(path.join(__dirname, "chatbot.html")));
 
 // Signup
 app.post("/api/signup", async (req, res, next) => {
   try {
     const { email, password, business_name } = req.body;
-
     if (!email || !password || !business_name) {
       return res.status(400).json({ error: "All fields are required" });
     }
-
-    const existing = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email]
-    );
+    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
     if (existing.rows.length > 0) {
       return res.status(400).json({ error: "Email already registered" });
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (email, password, business_name) VALUES ($1, $2, $3) RETURNING id, email, business_name",
       [email, hashedPassword, business_name]
     );
-
     const user = result.rows[0];
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, user });
-  } catch (error) {
-    next(error);
-  }
+  } catch (error) { next(error); }
 });
 
 // Login
 app.post("/api/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password required" });
     }
-
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-
     const user = result.rows[0];
     const validPassword = await bcrypt.compare(password, user.password);
-
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        business_name: user.business_name
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: "7d" });
+    res.json({ token, user: { id: user.id, email: user.email, business_name: user.business_name } });
+  } catch (error) { next(error); }
 });
 
-// Save sale (protected)
-app.post("/api/sales", authMiddleware, async (req, res, next) => {
+// Get sales with date filter
+app.get("/api/sales/filter", authMiddleware, async (req, res, next) => {
   try {
-    const { product, amount, qty } = req.body;
+    const { range } = req.query;
+    let interval = "7 days";
+    if (range === "today") interval = "1 day";
+    else if (range === "30days") interval = "30 days";
+    else if (range === "90days") interval = "90 days";
 
-    if (typeof product !== "string" || product.trim() === "") {
-      return res.status(400).json({ error: "Invalid product" });
-    }
-
-    const amountNum = Number(amount);
-    const qtyNum = Number(qty);
-
-    if (!Number.isFinite(amountNum) || amountNum < 0) {
-      return res.status(400).json({ error: "Invalid amount" });
-    }
-
-    if (!Number.isInteger(qtyNum) || qtyNum <= 0) {
-      return res.status(400).json({ error: "Invalid qty" });
-    }
-
-    await pool.query(
-      "INSERT INTO sales (user_id, product, amount, qty) VALUES ($1, $2, $3, $4)",
-      [req.user.id, product.trim(), amountNum, qtyNum]
+    const result = await pool.query(
+      `SELECT * FROM sales 
+       WHERE user_id = $1 
+       AND created_at >= NOW() - INTERVAL '${interval}'
+       ORDER BY created_at DESC LIMIT 100`,
+      [req.user.id]
     );
-    res.json({ success: true });
-  } catch (error) {
-    next(error);
-  }
+    res.json(result.rows);
+  } catch (error) { next(error); }
 });
 
-// Get sales (protected)
+// Get all sales
 app.get("/api/sales", authMiddleware, async (req, res, next) => {
   try {
     const result = await pool.query(
@@ -218,19 +163,98 @@ app.get("/api/sales", authMiddleware, async (req, res, next) => {
       [req.user.id]
     );
     res.json(result.rows);
-  } catch (error) {
-    next(error);
-  }
+  } catch (error) { next(error); }
 });
 
-// AI Predictions (protected)
+// Add sale
+app.post("/api/sales", authMiddleware, async (req, res, next) => {
+  try {
+    const { product, amount, qty } = req.body;
+    if (typeof product !== "string" || product.trim() === "") {
+      return res.status(400).json({ error: "Invalid product" });
+    }
+    const amountNum = Number(amount);
+    const qtyNum = Number(qty);
+    if (!Number.isFinite(amountNum) || amountNum < 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+    if (!Number.isInteger(qtyNum) || qtyNum <= 0) {
+      return res.status(400).json({ error: "Invalid qty" });
+    }
+    await pool.query(
+      "INSERT INTO sales (user_id, product, amount, qty) VALUES ($1, $2, $3, $4)",
+      [req.user.id, product.trim(), amountNum, qtyNum]
+    );
+    res.json({ success: true });
+  } catch (error) { next(error); }
+});
+
+// Delete sale
+app.delete("/api/sales/:id", authMiddleware, async (req, res, next) => {
+  try {
+    await pool.query(
+      "DELETE FROM sales WHERE id=$1 AND user_id=$2",
+      [req.params.id, req.user.id]
+    );
+    res.json({ success: true });
+  } catch (error) { next(error); }
+});
+
+// Get inventory
+app.get("/api/inventory", authMiddleware, async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM inventory WHERE user_id = $1 ORDER BY name ASC",
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (error) { next(error); }
+});
+
+// Add inventory
+app.post("/api/inventory", authMiddleware, async (req, res, next) => {
+  try {
+    const { name, qty, low_stock_threshold } = req.body;
+    if (!name || qty === undefined) {
+      return res.status(400).json({ error: "Name and qty required" });
+    }
+    const result = await pool.query(
+      "INSERT INTO inventory (user_id, name, qty, low_stock_threshold) VALUES ($1, $2, $3, $4) RETURNING *",
+      [req.user.id, name.trim(), parseInt(qty), parseInt(low_stock_threshold) || 10]
+    );
+    res.json(result.rows[0]);
+  } catch (error) { next(error); }
+});
+
+// Update inventory
+app.put("/api/inventory/:id", authMiddleware, async (req, res, next) => {
+  try {
+    const { name, qty, low_stock_threshold } = req.body;
+    const result = await pool.query(
+      "UPDATE inventory SET name=$1, qty=$2, low_stock_threshold=$3 WHERE id=$4 AND user_id=$5 RETURNING *",
+      [name.trim(), parseInt(qty), parseInt(low_stock_threshold) || 10, req.params.id, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Not found" });
+    res.json(result.rows[0]);
+  } catch (error) { next(error); }
+});
+
+// Delete inventory
+app.delete("/api/inventory/:id", authMiddleware, async (req, res, next) => {
+  try {
+    await pool.query(
+      "DELETE FROM inventory WHERE id=$1 AND user_id=$2",
+      [req.params.id, req.user.id]
+    );
+    res.json({ success: true });
+  } catch (error) { next(error); }
+});
+
+// AI Predictions
 app.get("/api/predictions", authMiddleware, async (req, res, next) => {
   try {
     const result = await pool.query(`
-      SELECT 
-        product,
-        SUM(qty) as total_qty,
-        SUM(amount) as total_amount
+      SELECT product, SUM(qty) as total_qty, SUM(amount) as total_amount
       FROM sales
       WHERE created_at >= NOW() - INTERVAL '30 days'
       AND user_id = $1
@@ -239,12 +263,13 @@ app.get("/api/predictions", authMiddleware, async (req, res, next) => {
     `, [req.user.id]);
 
     const salesData = result.rows;
-
     if (salesData.length === 0) {
       return res.json({
         nextWeekSales: "Add more sales data first",
         bestProduct: "No data yet",
-        restockAlert: "No data yet"
+        restockAlert: "No data yet",
+        trend: "No data yet",
+        recommendation: "Start adding sales to get AI insights"
       });
     }
 
@@ -258,12 +283,14 @@ Always respond in this exact JSON format with no extra text:
 {
   "nextWeekSales": "₹X,XXX expected",
   "bestProduct": "Product name",
-  "restockAlert": "Product name (X days left)"
+  "restockAlert": "Product name (X days left)",
+  "trend": "Sales are increasing/decreasing/stable",
+  "recommendation": "One specific action to take this week"
 }`
         },
         {
           role: "user",
-          content: `Analyze this 30-day sales summary and predict: ${JSON.stringify(salesData)}`
+          content: `Analyze this 30-day sales summary: ${JSON.stringify(salesData)}`
         }
       ]
     });
@@ -280,26 +307,20 @@ Always respond in this exact JSON format with no extra text:
       predictions = {
         nextWeekSales: "Unable to predict",
         bestProduct: "Unable to predict",
-        restockAlert: "Unable to predict"
+        restockAlert: "Unable to predict",
+        trend: "Unable to predict",
+        recommendation: "Unable to predict"
       };
     }
-
     res.json(predictions);
-
-  } catch (error) {
-    next(error);
-  }
+  } catch (error) { next(error); }
 });
 
-// Chat (public)
+// Chat
 app.post("/chat", async (req, res, next) => {
   try {
     const { message } = req.body;
-
-    if (!message) {
-      return res.status(400).json({ error: "Message is required" });
-    }
-
+    if (!message) return res.status(400).json({ error: "Message is required" });
     const response = await client.chat.completions.create({
       model: CHAT_MODEL,
       messages: [
@@ -313,9 +334,7 @@ ${knowledge}`
       ]
     });
     res.json({ reply: response.choices[0].message.content });
-  } catch (error) {
-    next(error);
-  }
+  } catch (error) { next(error); }
 });
 
 // Global error handler
@@ -324,10 +343,7 @@ app.use((err, req, res, next) => {
   const status = err.status || 500;
   res.status(status).json({
     success: false,
-    error: {
-      code: err.code || "INTERNAL_ERROR",
-      message: "Something went wrong"
-    }
+    error: { code: err.code || "INTERNAL_ERROR", message: "Something went wrong" }
   });
 });
 
